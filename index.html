@@ -112,7 +112,7 @@
                             simulationState.casting.timer = 0;
                             simulationState.mana -= spell.mana;
 
-                            const healAmount = calculateHeal(
+                            var healAmount = calculateHeal(
                                 spell.healMin,
                                 spell.healMax,
                                 healingLight,
@@ -122,15 +122,19 @@
                             );
 
                             const isCrit = getIsCrit(critChance);
-                            const effectiveHeal = isCrit ? healAmount * CONSTANTS.critMultiplier : healAmount;
+                            healAmount = isCrit ? healAmount * CONSTANTS.critMultiplier : healAmount;
+
+                            if (isCheckedById("hpRing")) {
+                                healAmount = healAmount * (1 + timeworn / 100);
+                            }
 
                             if (isCrit) {
                                 simulationState.mana += spell.mana; // Refund mana on crit
                                 simulationState.casted[spell === dl ? "dlCrit" : "hlCrit"]++;
                             }
 
-                            simulationState.healed[spell === dl ? "dl" : "hl"] += effectiveHeal;
-                            simulationState.healed.total += effectiveHeal;
+                            simulationState.healed[spell === dl ? "dl" : "hl"] += healAmount;
+                            simulationState.healed.total += healAmount;
                             simulationState.casted[spell === dl ? "dl" : "hl"]++;
                         }
                     }
