@@ -6,6 +6,7 @@
     <script>
         // Constants
         const CONSTANTS = {
+            iterations: 1,
             healingLightBonus: 12,
             blessingOfLightBonus: 400,
             critMultiplier: 1.5,
@@ -16,7 +17,7 @@
             mana: 0,
             casting: { timer: 0, spell: "", isCasting: false },
             casted: { dl: 0, dlCrit: 0, hl: 0, hlCrit: 0 },
-            healed: { dl: 0, hl: 0, total: 0 }
+            healed: { dl: 0, dlHPS: 0, dlHealPerCast: 0, hl: 0, hlHPS: 0, hlHealPerCast: 0, total: 0, totalHPS: 0, totalHealPerCast:0 }
         };
 
         function getValueById(id) {
@@ -63,8 +64,7 @@
                 coeff: 71.9
             };
 
-            simulationState.mana = 0;
-            simulationState.casting = { timer: 0, spell: "", isCasting: false };
+            simulationState.mana = 0;            
             simulationState.casted = { dl: 0, dlCrit: 0, hl: 0, hlCrit: 0 };
             simulationState.healed = { dl: 0, hl: 0, total: 0 };
 
@@ -89,9 +89,10 @@
                 dl.cooldown *= 0.75;
             }
 
-            let dlCooldown = 0;
+            for (let j = 0; j < CONSTANTS.iterations; j++) {
+                let dlCooldown = 0;
+                simulationState.casting = { timer: 0, spell: "", isCasting: false };
 
-            for (let j = 0; j < 100; j++) {
                 for (let i = 0; i < fightLen; i++) {
                     if (dlCooldown <= 0 && !simulationState.casting.isCasting) {
                         simulationState.casting.isCasting = true;
@@ -104,7 +105,6 @@
                     if (simulationState.casting.isCasting) {
                         const spell = simulationState.casting.spell === "dl" ? dl : hl;
                         if (simulationState.casting.timer >= spell.castTime) {
-                            
                             if (simulationState.casting.spell === "dl") {
                                 dlCooldown = spell.cooldown;
                             }
@@ -148,33 +148,33 @@
         }
 
         function updateUI(state, fightLen) {
-            state.healed.hlHPS = (state.healed.hl / (fightLen / 1000)) / 100;
-            state.healed.dlHPS = (state.healed.dl / (fightLen / 1000)) / 100;
-            state.healed.totalHPS = (state.healed.total / (fightLen / 1000)) / 100;
+            state.healed.hlHPS = (state.healed.hl / (fightLen / 1000)) / CONSTANTS.iterations;
+            state.healed.dlHPS = (state.healed.dl / (fightLen / 1000)) / CONSTANTS.iterations;
+            state.healed.totalHPS = (state.healed.total / (fightLen / 1000)) / CONSTANTS.iterations;
 
             state.healed.hlHealPerCast = state.healed.hl / state.casted.hl;
             state.healed.dlHealPerCast = state.healed.dl / state.casted.dl;
             state.healed.totalHealPerCast = state.healed.total / (state.casted.dl + state.casted.hl);
 
-            document.getElementById("casted_hl").innerText = (state.casted.hl / 100).toFixed(0);
-            document.getElementById("crit_hl").innerText = (state.casted.hlCrit / 100).toFixed(0);
-            document.getElementById("healed_hl").innerText = numberFormat(state.healed.hl / 100);
+            document.getElementById("casted_hl").innerText = (state.casted.hl / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("crit_hl").innerText = (state.casted.hlCrit / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("healed_hl").innerText = numberFormat(state.healed.hl / CONSTANTS.iterations);
             document.getElementById("hps_hl").innerHTML = decimalFormat(state.healed.hlHPS);
             document.getElementById("hpc_hl").innerHTML = decimalFormat(state.healed.hlHealPerCast);
 
-            document.getElementById("casted_dl").innerText = (state.casted.dl / 100).toFixed(0);
-            document.getElementById("crit_dl").innerText = (state.casted.dlCrit / 100).toFixed(0);
-            document.getElementById("healed_dl").innerText = numberFormat(state.healed.dl / 100);
+            document.getElementById("casted_dl").innerText = (state.casted.dl / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("crit_dl").innerText = (state.casted.dlCrit / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("healed_dl").innerText = numberFormat(state.healed.dl / CONSTANTS.iterations);
             document.getElementById("hps_dl").innerHTML = decimalFormat(state.healed.dlHPS);
             document.getElementById("hpc_dl").innerHTML = decimalFormat(state.healed.dlHealPerCast);
 
-            document.getElementById("casted_total").innerText = ((state.casted.hl + state.casted.dl) / 100).toFixed(0);
-            document.getElementById("crit_total").innerText = ((state.casted.hlCrit + state.casted.dlCrit) / 100).toFixed(0);
-            document.getElementById("healed_total").innerText = numberFormat(state.healed.total / 100);
+            document.getElementById("casted_total").innerText = ((state.casted.hl + state.casted.dl) / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("crit_total").innerText = ((state.casted.hlCrit + state.casted.dlCrit) / CONSTANTS.iterations).toFixed(0);
+            document.getElementById("healed_total").innerText = numberFormat(state.healed.total / CONSTANTS.iterations);
             document.getElementById("hps_total").innerHTML = decimalFormat(state.healed.totalHPS);
             document.getElementById("hpc_total").innerHTML = decimalFormat(state.healed.totalHealPerCast);
 
-            document.getElementById("mana").innerHTML = decimalFormat(state.mana / 100);
+            document.getElementById("mana").innerHTML = decimalFormat(state.mana / CONSTANTS.iterations);
         }
 
         function decimalFormat(number) {
