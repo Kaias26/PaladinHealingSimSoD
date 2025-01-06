@@ -6,7 +6,7 @@
     <script>
         // Constants
         const CONSTANTS = {
-            iterations: 1,
+            iterations: 100,
             healingLightBonus: 12,
             blessingOfLightBonus: 400,
             critMultiplier: 1.5,
@@ -135,8 +135,7 @@
 
                             simulationState.healed[spell === dl ? "dl" : "hl"] += healAmount;
                             simulationState.healed.total += healAmount;
-                            simulationState.casted[spell === dl ? "dl" : "hl"]++;
-                        }
+                            simulationState.casted[spell === dl ? "dl" : "hl"]++;                        }
                     }
 
                     simulationState.casting.timer++;
