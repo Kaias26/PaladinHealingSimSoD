@@ -1,10 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
-            crossorigin="anonymous"></script>
     <script>
         function startSim() {
             // constantes
@@ -15,7 +13,7 @@
                 healMax: 1770,
                 cd: 0,
                 coeff: 71.9
-            }
+            };
 
             var dl = {
                 castime: 2.5 * 1000,
@@ -24,36 +22,36 @@
                 healMax: 2645,
                 cd: 8 * 1000,
                 coeff: 71.9
-            }
+            };
             var dlCoolDown = 0;
 
             var mana = 0;
 
             // variables
-            var fightLen = $("#fightLen").val() * 60 * 1000; //milliseconde
+            var fightLen = document.getElementById("fightLen").value * 60 * 1000; // millisecondes
 
-            var healingPower = $("#healingPower").val();
-            var critChance = $("#critChance").val();
+            var healingPower = document.getElementById("healingPower").value;
+            var critChance = document.getElementById("critChance").value;
 
-            var healingLight = $("#healingLight").is(':checked') ? 12 : 0;
-            var blessingOfLight = $("#blessingOfLight").is(':checked') ? 400 : 0;
+            var healingLight = document.getElementById("healingLight").checked ? 12 : 0;
+            var blessingOfLight = document.getElementById("blessingOfLight").checked ? 400 : 0;
 
-            var timeworn = $("#timeworn").val() * 2;
-            var hasteRing = $("#hasteRing").is(':checked');
+            var timeworn = document.getElementById("timeworn").value * 2;
+            var hasteRing = document.getElementById("hasteRing").checked;
             if (hasteRing) {
                 hl.castime = hl.castime * (1 - timeworn / 100);
                 dl.castime = dl.castime * (1 - timeworn / 100);
             }
 
-            var hpRing = $("#hpRing").is(':checked');
+            var hpRing = document.getElementById("hpRing").checked;
 
-            var lightGrace = $("#lightGrace").is(':checked');
+            var lightGrace = document.getElementById("lightGrace").checked;
             if (lightGrace) {
                 hl.castime -= 0.5 * 1000;
                 dl.castime -= 0.5 * 1000;
             }
 
-            var aqSet = $("#aqSet").is(':checked');
+            var aqSet = document.getElementById("aqSet").checked;
             if (aqSet) {
                 dl.cd = dl.cd * (1 - 25 / 100);
             }
@@ -63,14 +61,14 @@
                 timer: 0,
                 spell: "",
                 isCasting: false
-            }
+            };
 
             var casted = {
                 dl: 0,
                 dlCrit: 0,
                 hl: 0,
                 hlCrit: 0,
-            }
+            };
 
             var healed = {
                 dl: 0,
@@ -82,7 +80,7 @@
                 total: 0,
                 totalHPS: 0,
                 totalHealPerCast: 0
-            }
+            };
 
             for (j = 0; j < 100; j++) {
                 for (i = 0; i < fightLen; i++) {
@@ -90,24 +88,23 @@
                     if (dlCoolDown <= 0 && !casting.isCasting) {
                         casting.isCasting = true;
                         casting.spell = "dl";
-                    }
-                    else if (!casting.isCasting) {
+                    } else if (!casting.isCasting) {
                         casting.isCasting = true;
                         casting.spell = "hl";
                     }
 
                     // end cast DL
-                    if (casting.isCasting && casting.spell == "dl" && casting.timer >= dl.castime) {
+                    if (casting.isCasting && casting.spell === "dl" && casting.timer >= dl.castime) {
                         dlCoolDown = dl.cd;
                         casting.isCasting = false;
                         casting.timer = 0;
                         mana = mana - dl.mana;
 
-                        healMin = dl.healMin * (1 + healingLight / 100) + (healingPower * dl.coeff / 100) + blessingOfLight;
-                        healMax = dl.healMax * (1 + healingLight / 100) + (healingPower * dl.coeff / 100) + blessingOfLight;
-                        healAmount = getAmountHealed(healMin, healMax);
+                        var healMin = dl.healMin * (1 + healingLight / 100) + (healingPower * dl.coeff / 100) + blessingOfLight;
+                        var healMax = dl.healMax * (1 + healingLight / 100) + (healingPower * dl.coeff / 100) + blessingOfLight;
+                        var healAmount = getAmountHealed(healMin, healMax);
 
-                        isCrit = getIsCrit(critChance);
+                        var isCrit = getIsCrit(critChance);
                         if (isCrit) {
                             healAmount = healAmount * 1.5;
                             mana = mana + dl.mana;
@@ -123,21 +120,19 @@
                         healed.dl += healAmount;
                         healed.total += healAmount;
                         casted.dl++;
-
-                        //console.log("cast DL for " + healAmount + " " + (isCrit ? "(Crit)" : "") + " (" + i / 1000 + "s)");
                     }
 
                     // end cast HL
-                    if (casting.isCasting && casting.spell == "hl" && casting.timer >= hl.castime) {
+                    if (casting.isCasting && casting.spell === "hl" && casting.timer >= hl.castime) {
                         casting.isCasting = false;
                         casting.timer = 0;
                         mana = mana - hl.mana;
 
-                        healMin = hl.healMin * (1 + healingLight / 100) + (healingPower * hl.coeff / 100) + blessingOfLight;
-                        healMax = hl.healMax * (1 + healingLight / 100) + (healingPower * hl.coeff / 100) + blessingOfLight;
-                        healAmount = getAmountHealed(healMin, healMax);
+                        var healMin = hl.healMin * (1 + healingLight / 100) + (healingPower * hl.coeff / 100) + blessingOfLight;
+                        var healMax = hl.healMax * (1 + healingLight / 100) + (healingPower * hl.coeff / 100) + blessingOfLight;
+                        var healAmount = getAmountHealed(healMin, healMax);
 
-                        isCrit = getIsCrit(critChance);
+                        var isCrit = getIsCrit(critChance);
                         if (isCrit) {
                             healAmount = healAmount * 1.5;
                             mana = mana + hl.mana;
@@ -153,8 +148,6 @@
                         healed.hl += healAmount;
                         healed.total += healAmount;
                         casted.hl++;
-
-                        //console.log("cast HL for " + healAmount + " " + (isCrit ? "(Crit)" : "") + " (" + i / 1000 + "s)");
                     }
 
                     casting.timer++;
@@ -162,33 +155,33 @@
                 }
             }
 
-            healed.hlHPS = (healed.hl / (fightLen / 1000))/100;
-            healed.dlHPS = (healed.dl / (fightLen / 1000))/100;
-            healed.totalHPS = (healed.total / (fightLen / 1000))/100;
+            healed.hlHPS = (healed.hl / (fightLen / 1000)) / 100;
+            healed.dlHPS = (healed.dl / (fightLen / 1000)) / 100;
+            healed.totalHPS = (healed.total / (fightLen / 1000)) / 100;
 
-            healed.hlHealPerCast = (healed.hl / casted.hl);
-            healed.dlHealPerCast = (healed.dl / casted.dl);
-            healed.totalHealPerCast = (healed.total / (casted.dl + casted.hl));
+            healed.hlHealPerCast = healed.hl / casted.hl;
+            healed.dlHealPerCast = healed.dl / casted.dl;
+            healed.totalHealPerCast = healed.total / (casted.dl + casted.hl);
 
-            $("#casted_hl").html(Math.floor(casted.hl/100));
-            $("#crit_hl").html(Math.floor(casted.hlCrit/100));
-            $("#healed_hl").html(numberFormat(healed.hl/100));
-            $("#hps_hl").html(decimalFormat(healed.hlHPS));
-            $("#hpc_hl").html(decimalFormat(healed.hlHealPerCast));
+            document.getElementById("casted_hl").innerHTML = Math.floor(casted.hl / 100);
+            document.getElementById("crit_hl").innerHTML = Math.floor(casted.hlCrit / 100);
+            document.getElementById("healed_hl").innerHTML = numberFormat(healed.hl / 100);
+            document.getElementById("hps_hl").innerHTML = decimalFormat(healed.hlHPS);
+            document.getElementById("hpc_hl").innerHTML = decimalFormat(healed.hlHealPerCast);
 
-            $("#casted_dl").html(Math.floor(casted.dl/100));
-            $("#crit_dl").html(Math.floor(casted.dlCrit/100));
-            $("#healed_dl").html(numberFormat(healed.dl/100));
-            $("#hps_dl").html(decimalFormat(healed.dlHPS));
-            $("#hpc_dl").html(decimalFormat(healed.dlHealPerCast));
+            document.getElementById("casted_dl").innerHTML = Math.floor(casted.dl / 100);
+            document.getElementById("crit_dl").innerHTML = Math.floor(casted.dlCrit / 100);
+            document.getElementById("healed_dl").innerHTML = numberFormat(healed.dl / 100);
+            document.getElementById("hps_dl").innerHTML = decimalFormat(healed.dlHPS);
+            document.getElementById("hpc_dl").innerHTML = decimalFormat(healed.dlHealPerCast);
 
-            $("#casted_total").html(Math.floor((casted.dl + casted.hl)/100));
-            $("#crit_total").html(Math.floor((casted.dlCrit + casted.hlCrit)/100));
-            $("#healed_total").html(numberFormat(healed.total/100));
-            $("#hps_total").html(decimalFormat(healed.totalHPS));
-            $("#hpc_total").html(decimalFormat(healed.totalHealPerCast));
+            document.getElementById("casted_total").innerHTML = Math.floor((casted.dl + casted.hl) / 100);
+            document.getElementById("crit_total").innerHTML = Math.floor((casted.dlCrit + casted.hlCrit) / 100);
+            document.getElementById("healed_total").innerHTML = numberFormat(healed.total / 100);
+            document.getElementById("hps_total").innerHTML = decimalFormat(healed.totalHPS);
+            document.getElementById("hpc_total").innerHTML = decimalFormat(healed.totalHealPerCast);
 
-            $("#mana").html(decimalFormat(mana/100));
+            document.getElementById("mana").innerHTML = decimalFormat(mana / 100);
         }
 
         function getCritDice() {
@@ -204,11 +197,20 @@
         }
 
         function decimalFormat(number) {
-            return (Math.round(number * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });;
+            return (Math.round(number * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
         }
+
         function numberFormat(number) {
-            return (Math.round(number * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 0, minimumFractionDigits: 0 });;
+            return (Math.round(number * 100) / 100).toLocaleString("en-US", { maximumFractionDigits: 0, minimumFractionDigits: 0 });
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            startSim();
+
+            document.querySelector("form").addEventListener("change", function () {
+                startSim();
+            });
+        });
     </script>
 </head>
 <body>
@@ -309,14 +311,5 @@
         </table>
         Mana : <span id="mana"></span>
     </div>
-    <script>
-        $(document).ready(function () {
-            startSim();
-
-            $('form').on("change", function (e) {
-                startSim();
-            });
-        });
-    </script>
 </body>
 </html>
