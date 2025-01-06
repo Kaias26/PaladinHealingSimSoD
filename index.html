@@ -75,16 +75,18 @@
             const blessingOfLight = isCheckedById("blessingOfLight") ? CONSTANTS.blessingOfLightBonus : 0;
             const timeworn = getValueById("timeworn") * 2;
 
-            if (isCheckedById("hasteRing")) {
-                hl.castTime *= 1 - timeworn / 100;
-                dl.castTime *= 1 - timeworn / 100;
-            }
-
             if (isCheckedById("lightGrace")) {
                 hl.castTime -= 500;
                 dl.castTime -= 500;
             }
 
+            if (isCheckedById("hasteRing")) {
+                hl.castTime = Math.round( hl.castTime / (1 + timeworn / 100)/10)*10;
+                dl.castTime = Math.round( dl.castTime / (1 + timeworn / 100)/10)*10;
+            }
+			
+			console.log(dl.castTime);
+			
             if (isCheckedById("aqSet")) {
                 dl.cooldown *= 0.75;
             }
@@ -94,15 +96,13 @@
                 simulationState.casting = { timer: 0, spell: "", isCasting: false };
 
                 for (let i = 0; i < fightLen; i++) {
-                    if (dlCooldown <= 0 && !simulationState.casting.isCasting) {
+					if (dlCooldown <= 0 && !simulationState.casting.isCasting) {
                         simulationState.casting.isCasting = true;
                         simulationState.casting.spell = "dl";
                     } else if (!simulationState.casting.isCasting) {
                         simulationState.casting.isCasting = true;
                         simulationState.casting.spell = "hl";
-                    }
-
-                    if (simulationState.casting.isCasting) {
+                    } else if (simulationState.casting.isCasting) {
                         const spell = simulationState.casting.spell === "dl" ? dl : hl;
                         if (simulationState.casting.timer >= spell.castTime) {
                             if (simulationState.casting.spell === "dl") {
@@ -135,10 +135,10 @@
 
                             simulationState.healed[spell === dl ? "dl" : "hl"] += healAmount;
                             simulationState.healed.total += healAmount;
-                            simulationState.casted[spell === dl ? "dl" : "hl"]++;                        }
+                            simulationState.casted[spell === dl ? "dl" : "hl"]++;
+						}
+						simulationState.casting.timer++;
                     }
-
-                    simulationState.casting.timer++;
                     dlCooldown--;
                 }
             }
